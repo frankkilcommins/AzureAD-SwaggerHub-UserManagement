@@ -1,0 +1,36 @@
+{
+    "GroupConfiguration": {
+        "activeDirectoryGroups": [
+            {
+                "objectId": "bc9ae6d5-1ccf-45dd-b56f-9ca020348808",
+                "name": "ADG-SWAGGERHUB-DESIGNERS",
+                "swaggerHubRole": "DESIGNER",
+                "organizations": [
+                    {
+                        "name": "frank-kilcommins"
+                    }
+                ]
+            },
+            {
+                "objectId": "afd8b023-331d-4fc4-84f7-f5a4654cbbba",
+                "name": "ADG-SWAGGERHUB-CONSUMERS",
+                "swaggerHubRole": "CONSUMER",
+                "organizations": [
+                    {
+                        "name": "frank-kilcommins"
+                    }
+                ]
+            },
+            {
+                "objectId": "126f28b7-a2b6-4a87-af23-edb61af80313",
+                "name": "ADG-SWAGGERHUB-OWNERS",
+                "swaggerHubRole": "CONSUMER",
+                "organizations": [
+                    {
+                        "name": "frank-kilcommins"
+                    }
+                ]               
+            }            
+        ]
+    }
+}
