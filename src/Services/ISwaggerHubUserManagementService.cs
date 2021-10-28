@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SwaggerHubDemo.Models;
 using SwaggerHubDemo.Models.SwaggerHub;
 
@@ -6,9 +7,9 @@ namespace SwaggerHubDemo.Services
 {
     public interface ISwaggerHubUserManagementService
     {
-        Task<MemberDetail> GetMemberByEmail(ActiveDirectoryGroup group, string email);
-        Task<NewMember> CreateMember(ActiveDirectoryGroup group, string firstName, string lastName, string email);
-        Task<PatchedMember> UpdateMember(ActiveDirectoryGroup group, PatchMemberRequest content);
-        Task<DeletedMember> DeleteMember(ActiveDirectoryGroup group, string email);
+        Task<MemberDetail> GetMemberByEmail(ILogger logger, ActiveDirectoryGroup group, string email);
+        Task<NewMember> CreateMember(ILogger logger, ActiveDirectoryGroup group, string firstName, string lastName, string email);
+        Task<PatchedMember> UpdateMember(ILogger logger, ActiveDirectoryGroup group, PatchMemberRequest content);
+        Task<DeletedMember> DeleteMember(ILogger logger, ActiveDirectoryGroup group, string email);
     }
 }
