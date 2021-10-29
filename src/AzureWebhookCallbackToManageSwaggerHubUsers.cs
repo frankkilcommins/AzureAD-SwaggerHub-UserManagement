@@ -9,10 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SwaggerHubDemo.Models;
 using SwaggerHubDemo.Models.Graph;
-using Microsoft.Graph;
-using Microsoft.Identity.Client;
 using System;
-using System.Net.Http.Headers;
 using SwaggerHubDemo.Services;
 
 namespace SwaggerHubDemo
@@ -21,13 +18,17 @@ namespace SwaggerHubDemo
     {
         private readonly IConfiguration _configuration;
         private readonly ISwaggerHubUserManagementService _swaggerHubUserManagementService;
+        private readonly IGraphService _graphService;
         public GroupConfiguration _groupConfiguration {get; private set;}
     
-        public AzureWebhookCallbackToManageSwaggerHubUsers(IConfiguration configuration, ISwaggerHubUserManagementService swaggerHubUserManagementService)
+        public AzureWebhookCallbackToManageSwaggerHubUsers(IConfiguration configuration
+            ,ISwaggerHubUserManagementService swaggerHubUserManagementService
+            ,IGraphService graphService)
         {
             _configuration = configuration;
             _swaggerHubUserManagementService = swaggerHubUserManagementService;
-            _groupConfiguration = InitializeGroupConfiguration(); // can be simplified
+            _graphService = graphService;
+            _groupConfiguration = InitializeGroupConfiguration(); 
         }
 
         private GroupConfiguration InitializeGroupConfiguration()
@@ -84,7 +85,7 @@ namespace SwaggerHubDemo
                         //Validate Groups
                         if(IsKnownGroup(notification.ResourceData?.Id) && notification.ResourceData?.Members != null)
                         {
-                            var graphServiceClient = GetGraphServiceClient();
+                            var graphServiceClient = _graphService.GetGraphServiceClient();
 
                             // Process the users
                             foreach(var member in notification.ResourceData?.Members)
@@ -154,33 +155,5 @@ namespace SwaggerHubDemo
         {    
             return _groupConfiguration.ActiveDirectoryGroups.Any(g => g.ObjectId == resourceId) ? true : false;
         }
-
-        private GraphServiceClient GetGraphServiceClient()
-        {
-            var client = new GraphServiceClient(new DelegateAuthenticationProvider( (requestMessage) => 
-            {
-                var accessToken = GetAccessToken().Result;
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
-
-                return Task.FromResult(0);
-            }));
-
-            return client;
-        }
-
-    private async Task<string> GetAccessToken()
-    {
-      IConfidentialClientApplication app = ConfidentialClientApplicationBuilder.Create(Environment.GetEnvironmentVariable("AppId"))
-        .WithClientSecret(Environment.GetEnvironmentVariable("AppSecret"))
-        .WithAuthority($"https://login.microsoftonline.com/{Environment.GetEnvironmentVariable("TenantId")}")
-        .WithRedirectUri(Environment.GetEnvironmentVariable("AppRedirectUrl"))
-        .Build();
-
-      string[] scopes = new string[] { "https://graph.microsoft.com/.default" };
-
-      var result = await app.AcquireTokenForClient(scopes).ExecuteAsync();
-
-      return result.AccessToken;
-    }
     }
 }
