@@ -350,6 +350,6 @@ MigrationBackup/
 .ionide/
 
 # Azurite files
-__azurerite*
+__azurite*
 __blobstorage__/
 __queuestorage__/
