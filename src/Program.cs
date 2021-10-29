@@ -31,7 +31,8 @@ namespace src
 
                     //Add Custom Services
                     services.AddSwaggerHubUserManagementService();
-
+                    services.AddGraphService();
+                    
                     //Add Customer Repositories
                     services.AddSwaggerHubRepository();
                 })
