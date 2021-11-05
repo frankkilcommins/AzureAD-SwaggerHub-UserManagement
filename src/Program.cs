@@ -1,17 +1,19 @@
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Azure.Functions.Worker.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SwaggerHubDemo.Models;
 using SwaggerHubDemo.Services;
 using SwaggerHubDemo.Repositories;
+using System.IO;
+using NJsonSchema;
+using System.Threading.Tasks;
+using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace src
 {
     public class Program
     {
-        public static void Main()
+        public static async Task Main()
         {
             var host = new HostBuilder()
                 .ConfigureAppConfiguration(configurationBuilder =>
@@ -38,7 +40,28 @@ namespace src
                 })
                 .Build();
 
+            await ValidateGroupConfiguration();
+
             host.Run();
+        }
+
+        private static async Task ValidateGroupConfiguration()
+        {
+            var text = await File.ReadAllTextAsync("GroupConfiguration.json");
+            var json = JToken.Parse(text);
+
+            var schema = await JsonSchema.FromFileAsync("GroupConfiguration.schema.json");
+            var errors = schema.Validate(json);
+
+            if(errors.Any())
+            {
+                var msg = $"‣ {errors.Count} total errors\n" +
+                string.Join("", errors
+                    .Select(e => $"  ‣ {e}[/] at " +
+                                $"{e.LineNumber}:{e.LinePosition}[/]\n"));
+                
+                throw new InvalidDataException($"GroupConfiguration.json does not conform to it's schema. Errors: {msg}");
+            }           
         }
     }
 }

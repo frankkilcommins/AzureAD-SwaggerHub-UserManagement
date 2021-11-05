@@ -1,0 +1,84 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://github.com/frankkilcommins/AzureAD-SwaggerHub-UserManagement/blob/main/src/GroupConfiguration.schema.json",
+    "title": "Group Configuration Schema",
+    "description": "Group configuration represents a custom AD security group configuration for managing SwaggerHub users",
+    "type": "object",
+    "required": [
+    	"GroupConfiguration"
+    ],
+    "properties": {
+    	"GroupConfiguration": {
+          	"$id": "/properties/GroupConfiguration",
+            "title": "Group Configuration Object",
+            "description": "Object which stores the ADGroup to SwaggerHub organization mapping data",
+        	"type": "object",
+            "required":  [
+            	"activeDirectoryGroups"
+            ],
+            "properties": {
+                 "activeDirectoryGroups": {
+                    "type": "array",
+                    "title": "The activeDirectoryGroups array",
+                    "description": "An array of ActiveDirectoryGroup objects representing the SwaggerHub AD Groups",
+                    "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "title": "The activeDirectoryGroup object",
+                            "description": "An object which stores the AD Group metadata, the SwaggerHub role and the SwaggerHub organizations to sync this AD Group with",
+                            "required": [
+                              "objectId",
+                              "swaggerHubRole",
+                              "organizations"
+                            ],
+                            "properties": {
+                                "objectId": {
+                                    "type": "string",
+                                    "title": "The objectId",
+                                    "description": "The objectId of the AD Group"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "name",
+                                    "description": "The name of the AD Group (optional but improved readability of configuration)"
+                                },
+                                "swaggerHubRole": {
+                                    "type": "string",
+                                    "title":"The swaggerHubRole",
+                                    "description": "The role that will be set in SwaggerHub for users receiving membership to the AD Group referenced by the `objectId`",
+                                    "enum": ["CONSUMER", "DESIGNER", "OWNER"]
+                                },
+                                "organizations": {
+                                    "type": "array",
+                                    "title": "The organizations arrau",
+                                    "description": "The SwaggerHub organizations mapped or linked to the AD Group referenced by the `objectId`",
+                                    "items": {
+                                        "anyOf": [
+                                            {
+                                                "type": "object",
+                                                "title": "organization",
+                                                "description": "The SwaggerHub Organization",
+                                                "required": [
+                                                    "name"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "title": "The name",
+                                                        "description": "The name of the organization as created within SwaggerHub"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }                            
+                          }                          
+                        ]
+                    }
+                }           	
+            } 
+        } 
+    }
+}
