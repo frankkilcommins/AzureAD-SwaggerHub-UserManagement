@@ -196,6 +196,16 @@ SwaggerHub organization(s) based on a particular Azure AD Group.
 ### Azure Function Settings
  *** ToDo ***
 
+## Deploy
+
+You can quickly deploy this solution to your Azure subscription, using the supplied ARM Template by clicking below:
+
+<a href="https://azuredeploy.net/
+   repository=https://github.com/frankkilcommins/AzureAD-SwaggerHub-UserManagement"
+   target="_blank">
+   <img src="https://aka.ms/deploytoazurebutton"/>
+</a>
+
 ## Setting up locally
 
 ### Prerequisites
