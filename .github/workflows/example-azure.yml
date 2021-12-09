@@ -1,4 +1,4 @@
-on: [workflow_run]
+on: [workflow_dispatch]
 
 name: AzureAD-SwaggerHub-UserManagement-Setup-and-Deploy
 
