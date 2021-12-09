@@ -1,1 +1,15 @@
+on: [workflow_run]
 
+name: AzureAD-SwaggerHub-UserManagement-Setup-and-Deploy
+
+jobs:
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AzureAD_SwaggerHub_CREDENTIALS }}
+
+    - run: |
+        az group list
