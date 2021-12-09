@@ -200,10 +200,7 @@ SwaggerHub organization(s) based on a particular Azure AD Group.
 
 You can quickly deploy this solution to your Azure subscription, using the supplied ARM Template by clicking below:
 
-<a href="https://azuredeploy.net/?repository=https://github.com/frankkilcommins/AzureAD-SwaggerHub-UserManagement?ptmpl=azuredeploy.parameters.json"
-   target="_blank">
-   <img src="https://aka.ms/deploytoazurebutton"/>
-</a>
+[![Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ffrankkilcommins%2FAzureAD-SwaggerHub-UserManagement%2Fmain%2Fazuredeploy.json)
 
 ## Setting up locally
 
