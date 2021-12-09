@@ -42,7 +42,7 @@
             "value": ""
         },
         "createNewStorageAccount": {
-            "value": false
+            "value": true
         }           
     }
 }

@@ -8,8 +8,8 @@ namespace SwaggerHubDemo.Services
     public interface ISwaggerHubUserManagementService
     {
         Task<MemberDetail> GetMemberByEmail(ILogger logger, ActiveDirectoryGroup group, string email);
-        Task<NewMember> CreateMember(ILogger logger, ActiveDirectoryGroup group, string firstName, string lastName, string email);
+        Task CreateMember(ILogger logger, ActiveDirectoryGroup group, string firstName, string lastName, string email);
         Task<PatchedMember> UpdateMember(ILogger logger, ActiveDirectoryGroup group, PatchMemberRequest content);
-        Task<DeletedMember> DeleteMember(ILogger logger, ActiveDirectoryGroup group, string email);
+        Task DeleteMember(ILogger logger, ActiveDirectoryGroup group, string email);
     }
 }

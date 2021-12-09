@@ -83,7 +83,7 @@
     "variables": {
         "serverFarmName": "[concat(parameters('cloudProviderPrefix'), '-ASP-', 'SwaggerHubUserMgmt', '-', parameters('env'))]",
         "FunctionsAppName": "[concat(parameters('cloudProviderPrefix'), '-FUA-', 'SwaggerHubUserMgmt', '-', parameters('env'))]",
-        "StorageAccountName": "[concat(toLower(parameters('cloudProviderPrefix')), 'sta', 'SwaggerHubUserMgmt', toLower(parameters('env')))]"
+        "StorageAccountName": "[concat(toLower(parameters('cloudProviderPrefix')), 'sta', 'shusermgmt', toLower(parameters('env')))]"
     },
     "resources": [
         {
