@@ -1,0 +1,214 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "cloudProviderPrefix": {
+            "defaultValue": "AZ",
+            "type": "string"
+        },
+        "env":{
+            "defaultValue": "prd",
+            "type": "string"
+        },
+        "hostingPlanSkuName": {
+            "type": "string",
+            "defaultValue": "S1",
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1",
+                "P2",
+                "P3",
+                "P4"
+            ],
+            "metadata": {
+                "description": "Describes plan's pricing tier and capacity. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+            }
+        },
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_ZRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Premium_LRS"
+                ]
+        },
+        "azureAdTenantId": {
+            "type": "string"
+        },
+        "azureAdApplicationId": {
+            "type": "string"
+        },
+        "azureAdApplicationSecret": {
+            "type": "string"
+        },
+        "azureAdApplicationRedirectUri": {
+            "defaultValue": "http://localhost",
+            "type": "string"
+        },
+        "notificationClientState": {
+            "defaultValue": "*somethingKnownByPubandSub*",
+            "type": "string"
+        },
+        "notificationSubscriptionResource": {
+            "defaultValue": "groups",
+            "type": "string"
+        },
+        "notificationSubscriptionChangeType": {
+            "defaultValue": "updated,deleted",
+            "type": "string"
+        },
+        "subscriptionLifeTimeInDays": {
+            "defaultValue": "21",
+            "type": "string"
+        },
+        "swaggerHubApiKey": {
+            "type": "string"
+        },
+        "createNewStorageAccount": {
+            "defaultValue": false,
+            "type": "bool"
+        }        
+    },
+    "functions": [],
+    "variables": {
+        "serverFarmName": "[concat(parameters('cloudProviderPrefix'), '-ASP-', 'SwaggerHubUserMgmt', '-', parameters('env'))]",
+        "FunctionsAppName": "[concat(parameters('cloudProviderPrefix'), '-FUA-', 'SwaggerHubUserMgmt', '-', parameters('env'))]",
+        "StorageAccountName": "[concat(toLower(parameters('cloudProviderPrefix')), 'sta', 'shusermgmt', toLower(parameters('env')))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('serverFarmName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-08-01",
+            "sku": {
+                "name": "[parameters('hostingPlanSkuName')]"
+            },
+            "dependsOn": [],
+            "tags": {
+                "displayName": "HostingPlan",
+                "environment": "parameters('env')"
+            },
+            "properties": {
+                "name": "[variables('serverFarmName')]",
+                "numberOfWorkers": 1
+            }
+        },       
+        {
+            "name": "[variables('FunctionsAppName')]",
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2018-02-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+            ],
+            "tags": {
+                "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', variables('serverFarmName')))]": "Resource",
+                "displayName": "FUA Notifications"
+            },
+            "properties": {
+                "name": "[variables('FunctionsAppName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]",
+                "httpsOnly": true,
+                "siteConfig": {
+                    "alwaysOn": true,
+                    "http20enabled": true,
+                    "remoteDebuggingEnabled": false,
+                    "ftpsState": "Disabled",
+                    "clientAffinityEnabled": false,
+                    "appSettings": [
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "dotnet-isolated"
+                        },
+                        {
+                            "name": "TenantId",
+                            "value": "[parameters('azureAdTenantId')]"
+                        },
+                        {
+                            "name": "AppId",
+                            "value": "[parameters('azureAdApplicationId')]"
+                        },
+                        {
+                            "name": "AppSecret",
+                            "value": "[parameters('azureAdApplicationSecret')]"
+                        },
+                        {
+                            "name": "AppRedirectUrl",
+                            "value": "[parameters('azureAdApplicationRedirectUri')]"
+                        },
+                        {
+                            "name": "NotificationClientState",
+                            "value": "[parameters('notificationClientState')]"
+                        },
+                        {
+                            "name": "NotificationSubscriptionResource",
+                            "value": "[parameters('notificationSubscriptionResource')]"
+                        },
+                        {
+                            "name": "NotificationSubscriptionChangeType",
+                            "value": "[parameters('notificationSubscriptionChangeType')]"
+                        },
+                        {
+                            "name": "NotificationFunctionEndpoint",
+                            "value": "[concat('https://', variables('FunctionsAppName'), '.azurewebsites.net','/api/AzureWebhookCallbackToManageSwaggerHubUsers')]"
+                        },
+                        {
+                            "name": "SubscriptionLifeTimeInDays",
+                            "value": "[parameters('subscriptionLifeTimeInDays')]"
+                        },
+                        {
+                            "name": "SwaggerHubBaseUrl",
+                            "value": "https://api.swaggerhub.com/"
+                        },
+                        {
+                            "name": "SwaggerHubUserManagementApiVersion",
+                            "value": "v1"
+                        },
+                        {
+                            "name": "SwaggerHubUserManagementApiPath",
+                            "value": "user-management"
+                        },
+                        {
+                            "name": "SwaggerHubApiKey",
+                            "value": "[parameters('swaggerHubApiKey')]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "[variables('StorageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2016-01-01",
+            "sku": {
+                "name": "[parameters('StorageAccountType')]"
+            },
+            "dependsOn": [],
+            "tags": {
+                "displayName": "StorageAccount",
+                "ENV": "[parameters('env')]"
+            },
+            "kind": "Storage",
+            "condition": "[parameters('createNewStorageAccount')]"
+        }        
+    ],
+    "outputs": {}
+}

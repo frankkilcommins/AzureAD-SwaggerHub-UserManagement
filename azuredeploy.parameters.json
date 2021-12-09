@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "cloudProviderPrefix": {
+            "value": "AZ"
+        },
+        "env":{
+            "value": "prd"
+        },
+        "hostingPlanSkuName": {
+            "value": "S1"
+        },
+        "storageAccountType": {
+            "value": "Standard_LRS"
+        },
+        "azureAdTenantId": {
+            "value": ""
+        },
+        "azureAdApplicationId": {
+            "value": ""
+        },
+        "azureAdApplicationSecret": {
+            "value": ""
+        },
+        "azureAdApplicationRedirectUri": {
+            "value": "http://localhost"
+        },
+        "notificationClientState": {
+            "value": "somesecrettobesetbyyou"
+        },
+        "notificationSubscriptionResource": {
+            "value": "groups"
+        },
+        "notificationSubscriptionChangeType": {
+            "value": "updated,deleted"
+        },
+        "subscriptionLifeTimeInDays": {
+            "value": "21"
+        },
+        "swaggerHubApiKey": {
+            "value": ""
+        },
+        "createNewStorageAccount": {
+            "value": true
+        }           
+    }
+}

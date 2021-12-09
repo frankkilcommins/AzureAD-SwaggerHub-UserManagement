@@ -7,7 +7,10 @@
                 "swaggerHubRole": "DESIGNER",
                 "organizations": [
                     {
-                        "name": "frank-kilcommins"
+                        "name": "KeepingItFrank_Org"
+                    },
+                    {
+                        "name": "KIF_Customer_Mgmt"
                     }
                 ]
             },
@@ -17,20 +20,56 @@
                 "swaggerHubRole": "CONSUMER",
                 "organizations": [
                     {
-                        "name": "frank-kilcommins"
+                        "name": "KeepingItFrank_Org"
+                    },
+                    {
+                        "name": "KIF_Customer_Mgmt"
                     }
                 ]
             },
             {
                 "objectId": "126f28b7-a2b6-4a87-af23-edb61af80313",
                 "name": "ADG-SWAGGERHUB-OWNERS",
+                "swaggerHubRole": "OWNER",
+                "organizations": [
+                    {
+                        "name": "KeepingItFrank_Org"
+                    },
+                    {
+                        "name": "KIF_Customer_Mgmt"
+                    }
+                ]               
+            },
+            {
+                "objectId": "5802bcc0-b9a5-4680-9d0e-bc6008213382",
+                "name": "ADG-OP-SWAGGERHUB-DESIGNERS-RiskMgmt",
+                "swaggerHubRole": "DESIGNER",
+                "organizations": [
+                    {
+                        "name": "KIF_Risk_Mgmt"
+                    }
+                ]
+            },            
+            {
+                "objectId": "eaa095b0-aa6b-416f-b6eb-b2b5ef692b9a",
+                "name": "ADG-OP-SWAGGERHUB-CONSUMERS-RiskMgmt",
                 "swaggerHubRole": "CONSUMER",
                 "organizations": [
                     {
-                        "name": "frank-kilcommins"
+                        "name": "KIF_Risk_Mgmt"
+                    }
+                ]
+            },
+            {
+                "objectId": "af3addf8-1367-4192-96e0-b013ffa522e3",
+                "name": "ADG-OP-SWAGGERHUB-OWNERS-RiskMgmt",
+                "swaggerHubRole": "OWNER",
+                "organizations": [
+                    {
+                        "name": "KIF_Risk_Mgmt"
                     }
                 ]               
-            }            
+            }             
         ]
     }
 }

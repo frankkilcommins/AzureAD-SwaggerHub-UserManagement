@@ -107,34 +107,22 @@ namespace SwaggerHubDemo
                                         logger.LogInformation("Adding user to SwaggerHub...");
 
                                         // add the user to the Swagger Hub Orgs
-                                        var createdUser = await _swaggerHubUserManagementService.CreateMember(logger
+                                        await _swaggerHubUserManagementService.CreateMember(logger
                                             ,_groupConfiguration.ActiveDirectoryGroups.FirstOrDefault(g => g.ObjectId == notification.ResourceData?.Id)
                                             ,user.GivenName
                                             ,user.Surname
                                             ,user.Mail
-                                        );
-
-                                        if(createdUser != null)
-                                        {
-                                            logger.LogInformation($"Created SwaggerHub User! Details: [firstName: {user.GivenName}, lastName: {user.Surname}, email: {createdUser.Email}, status: {createdUser.Status}]");
-                                        }                                    
+                                        );                                 
 
                                     }
                                     else if(changeType == "deleted")
-                                    {
-                                        //TODO ** Need to use registry API to check if user 'owns' APIs as they will be lost if user is deleted (perhaps we need logic app)
-                                        
+                                    {                                       
                                         logger.LogInformation("Deleting user from SwaggerHub...");
 
-                                        var deletedUser = await _swaggerHubUserManagementService.DeleteMember(logger
+                                        await _swaggerHubUserManagementService.DeleteMember(logger
                                             ,_groupConfiguration.ActiveDirectoryGroups.FirstOrDefault(g => g.ObjectId == notification.ResourceData?.Id)
                                             ,user.Mail
                                         );
-
-                                        if(deletedUser != null)
-                                        {
-                                            logger.LogInformation($"Deleted SwaggerHub User! Details:[username: {deletedUser.Username}, email: {deletedUser.Email}, status: {deletedUser.Status}]");
-                                        } 
                                     }
                                 }
                             }
