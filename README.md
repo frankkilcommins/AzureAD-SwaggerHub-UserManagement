@@ -418,3 +418,9 @@ curl --location --request POST 'http://localhost:7071/admin/functions/Subscripti
 --header 'Content-Type: application/json' \
 --data-raw '{ "input": "test" }'
 ```
+
+## License Info / Disclaimer
+
+**This sample solution is NOT supported by SmartBear. They are provided as-is.**
+
+For license info, please see [here](./License)
