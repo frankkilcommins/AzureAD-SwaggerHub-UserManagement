@@ -60,10 +60,10 @@ jobs:
           Write-Output "::set-output name=profile::$profile"
         azPSVersion: "latest"
 
-    - name: Setup DotNet 3.1.20 Environment
+    - name: Setup DotNet 3.1.0 Environment
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1.20'
+        dotnet-version: '3.1.0'
 
     - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
       uses: actions/setup-dotnet@v1
