@@ -3,9 +3,9 @@ on: [workflow_dispatch]
 name: AzureAD-SwaggerHub-UserManagement-Setup-and-Deploy
 
 env:
-  AZURE_FUNCTIONAPP_NAME: AZ-FUA-SwaggerHubUserMgmt-prd  # set this to your application's name (NOTE - should come from output from ARM)
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src'    # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '5.0.402'              # set this to the dotnet version to use
+  AZURE_FUNCTIONAPP_NAME: ''              # will be created via ARM and then set into this var
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src'   # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '5.0.402'               # set this to the dotnet version to use
 
 jobs:
 
@@ -24,12 +24,18 @@ jobs:
 
     # deploy ARM template to setup azure resources (group & sub defined in credentials)
     - name: Run ARM deploy
+      id: armdeploy
       uses: azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         template: ./azuredeploy.json
         parameters: ./azuredeploy.parameters.json
+
+    # set the function name
+    - name: Set Azure Function Name
+      run: |
+        echo "AZURE_FUNCTIONAPP_NAME=${{ steps.armdeploy.outputs.functionAppName }}"
 
   # build and deploy our Azure functions for SwaggerHub + Azure AD user mgmt
   build-and-deploy:
@@ -81,4 +87,4 @@ jobs:
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-        publish-profile: ${{ steps.fnApp.outputs.profile }}
+        publish-profile: ${{ steps.fncapp.outputs.profile }}

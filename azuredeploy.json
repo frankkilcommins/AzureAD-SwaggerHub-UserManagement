@@ -138,6 +138,10 @@
                             "value": "dotnet-isolated"
                         },
                         {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
                             "name": "TenantId",
                             "value": "[parameters('azureAdTenantId')]"
                         },
