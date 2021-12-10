@@ -57,6 +57,11 @@ jobs:
         creds: ${{ secrets.AzureAD_SwaggerHub_CREDENTIALS }}
         enable-AzPSSession: true      
 
+    # Test Getting Function Name
+    - name: Get Azure Function Name
+      run: |
+        echo "${{ env.AZURE_FUNCTIONAPP_NAME }}"
+
     # get publish profile
     - name: Get publish profile
       id: fncapp
