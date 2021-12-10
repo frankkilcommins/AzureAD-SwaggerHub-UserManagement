@@ -48,16 +48,16 @@ jobs:
 
     # get publish profile
     - name: Get publish profile
-      id: fnApp
-      shell: pwsh
-      run: |
-        $profile = Get-AzWebAppPublishingProfile
-          -ResourceGroupName ${{ secrets.AZURE_RG }}
-          -Name ${{ env.AZURE_FUNCTIONAPP_NAME }}
-
-        $profile = $profile.Replace("`r", "").Replace("`n", "")
-
-        Write-Output "::set-output name=profile::$profile"
+      id: fncapp
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          az account show
+          $profile = ""
+          $profile = Get-AzWebAppPublishingProfile -ResourceGroupName ${{ secrets.AZURE_RG }} -Name ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          $profile = $profile.Replace("`r", "").Replace("`n", "")
+          Write-Output "::set-output name=profile::$profile"
+        azPSVersion: "latest"
 
     - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
       uses: actions/setup-dotnet@v1
