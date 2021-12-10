@@ -33,6 +33,7 @@ jobs:
 
   # build and deploy our Azure functions for SwaggerHub + Azure AD user mgmt
   build-and-deploy:
+    needs: [deploy-infrastructure]
     runs-on: windows-latest
     environment: prd
     steps:
@@ -59,6 +60,11 @@ jobs:
           Write-Output "::set-output name=profile::$profile"
         azPSVersion: "latest"
 
+    - name: Setup DotNet 3.1.20 Environment
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.20'
+
     - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
       uses: actions/setup-dotnet@v1
       with:
@@ -68,6 +74,7 @@ jobs:
       shell: pwsh
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        dotnet restore
         dotnet build --configuration Release --output ./output
         popd
 
