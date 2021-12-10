@@ -1,15 +1,16 @@
 # AzureAD-SwaggerHub-UserManagement
-This is a sample project to demonstrate methods of managing SwaggerHub users automatically based on Azure AD group memberships via Azure Functions, MS Graph and the SwaggerHub User Management API.
+This is a sample project to demonstrate methods of managing SwaggerHub users automatically based on Azure AD group memberships via Azure Functions, MS Graph, and the SwaggerHub User Management API.
 
 ![AD to SwaggerHub Provisioning](./AzureAD-to-SwaggerHub.gif)
 
-Many organizations leverage Azure AD identity & access management for authentication and for controlling what resources/applications employess can access. If your organization uses Azure AD, then it's very likely that your preference (or perhaps even corporate policy) would be to manage SwaggerHub users in the same manner that you do with other applications and thus keeping the ownership close to your identity & access management functions, or perhaps your HR department.
+Many organizations leverage Azure AD identity & access management for authentication and for controlling what resources/applications employees can access. If your organization uses Azure AD, then it's very likely that your preference (or perhaps even corporate policy) would be to manage SwaggerHub users in the same manner that you do with other applications and thus keeping the ownership close to your identity & access management functions, or perhaps your HR department.
 
-This reference solution enables you to keep using your existing HR and/or application administration processes by having the administration of SwaggerHub users controlled through your Azure AD tenant. Users will get automatically provisioned or deprovisioned from SwaggerHub based on their assignment to Azure AD groups, thus negating the need to perform user management directly within SwaggerHub itself.
+This sample solution enables you to keep using your existing HR and/or application administration processes by having the administration of SwaggerHub users controlled through your Azure AD tenant. Users will get automatically provisioned or deprovisioned from SwaggerHub based on their assignment to Azure AD groups, thus negating the need to perform user management directly within SwaggerHub itself.
 
 The benefits are:
 - users on-boarded into your organization, will automatically get access to SwaggerHub assuming the appropriate Azure AD group membership is applied
 - user leaving your organization are automatically removed from SwaggerHub once their group memberships are revoked
+- users moving departments or teams within your organization, will have their SwaggerHub access modified based on the changes in Azure AD group assignments.
 
 ## Languages and services used
 - [C#](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -23,13 +24,13 @@ The benefits are:
 
 ![high level architecture](./architecture-high-level.png)
 
-The deploy solution consists of two Azure Functions which interact with the Microsoft Graph API and the SwaggerHub User-Management API.
+The sample solution consists of two Azure Functions which interact with the Microsoft Graph API and the SwaggerHub User-Management API.
 
 **Components**
 |Component|Description|
 |---------|-----------|
 |**SubscriptionManager** Azure Function| This `TimerTrgger` function runs daily and takes care of managing the *change notification subscription* with the Microsoft Graph. It will create a new subscription if one does not exists and otherwise will renew an existing subscription if its due to expire within 7 days|
-|**AzureWebhookCallbackToManageSwaggerHubUsers** Azure Function| This `HttpTrigger` function is called by the Microsoft Graph anytime there is a *change* to group memberships within Azure AD. THe function parses the recieved change notification and determines if it's interested in the notification (with the aid of the `GroupConfiguration.json` settings). If it's interested in the group, then it obtains additional information on the users added/removed from the group via the **Microsoft Graph** and in turn calls the **SwaggerHub User-Management API** to ensure the changes are reflected in SwaggerHub|
+|**AzureWebhookCallbackToManageSwaggerHubUsers** Azure Function| This `HttpTrigger` function is called by the Microsoft Graph anytime there is a *change* to group memberships within Azure AD. The function parses the recieved change notification and determines if it's interested in the notification (with the aid of the `GroupConfiguration.json` settings). If it's interested in the group, then it obtains additional information on the users added/removed from the group via the **Microsoft Graph** and in turn calls the **SwaggerHub User-Management API** to ensure the changes are reflected in SwaggerHub|
 
 The following sequence diagram, explains the high level working of the solution:
 ![high level flow](./flow.png)
@@ -79,7 +80,7 @@ To add the permissions to your registered app, perform the following steps:
 
 ### Azure AD Group Structures
 
-The whole idea is that granting or revoking certain group memberships within Azure AD should either add or remove users from SwaggerHub. For this to work, you need to configure the representative groups within your Azure AD tenant.
+The whole idea is that granting or revoking certain group memberships within Azure AD should either add, update, or remove users from SwaggerHub. For this to work, you need to configure the representative groups within your Azure AD tenant.
 
 Depending on the number of SwaggerHub organizations you have the AD Group creation strategy will change. This solution supports single and multi-organization setups.
 
@@ -196,15 +197,124 @@ SwaggerHub organization(s) based on a particular Azure AD Group.
 ### Azure Function Settings
  *** ToDo ***
 
-## Deploy
+## Deploy to your Azure Subscription
 
-You can quickly deploy this solution to your Azure subscription, using the supplied ARM Template by clicking below:
+You can quickly deploy this solution to your Azure subscription, using the options below.
+
+**Option 1 - Azure Deploy Button** 
+
+Click the button below to deploy the required infrastructure to your Azure subscription. **Note** you will still need to publish the code manually (you can follow the _Setting up locally_ section and deploy to your Azure environment).
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ffrankkilcommins%2FAzureAD-SwaggerHub-UserManagement%2Fmain%2Fazuredeploy.json"
    target="_blank">
    <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
+**Option 2 - GitHub Action**
+
+You can fork this source code to your own repo and create the following GitHub action
+
+```
+on: [workflow_dispatch]     # change the triggering mechanism to suit your needs (manual run by default)
+
+name: AzureAD-SwaggerHub-UserManagement-Setup-and-Deploy
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src'   # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '5.0.402'               # set this to the dotnet version to use
+
+jobs:
+
+  # use ARM templates to set up the Azure Infra
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+
+    # set outputs needed by subsequent jobs
+    outputs:
+      azFunctionAppName: ${{ steps.armdeploy.outputs.functionAppName }}
+    
+    steps:
+
+    # check out code
+    - uses: actions/checkout@main
+
+    # login to Azure
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AzureAD_SwaggerHub_CREDENTIALS }}
+
+    # deploy ARM template to setup azure resources (group & sub defined in credentials)
+    - name: Run ARM deploy
+      id: armdeploy
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ./azuredeploy.json
+        parameters: ./azuredeploy.parameters.json
+  
+
+  # build and deploy our Azure functions for SwaggerHub + Azure AD user mgmt
+  build-and-deploy:
+    needs: [deploy-infrastructure]
+    runs-on: windows-latest
+    environment: prd
+    steps:
+    # check out code
+    - name: 'Checkout code'
+      uses: actions/checkout@main
+
+    # login to Azure
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AzureAD_SwaggerHub_CREDENTIALS }}
+        enable-AzPSSession: true      
+
+    # get publish profile
+    - name: Get publish profile
+      id: fncapp
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          az account show
+          $profile = ""
+          $profile = Get-AzWebAppPublishingProfile -ResourceGroupName ${{ secrets.AZURE_RG }} -Name ${{ needs.deploy-infrastructure.outputs.azFunctionAppName }}
+          $profile = $profile.Replace("`r", "").Replace("`n", "")
+          Write-Output "::set-output name=profile::$profile"
+        azPSVersion: "latest"
+
+    # setup donet environments
+    - name: Setup DotNet Environments
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: |
+          3.1.x
+          ${{ env.DOTNET_VERSION }}
+
+    # build project
+    - name: 'Resolve dependencies and build'
+      shell: pwsh
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        dotnet restore
+        dotnet build --configuration Release --output ./output
+        popd
+
+    # publish azure function
+    - name: 'Run Azure Functions Action'
+      uses: Azure/functions-action@v1
+      id: fa
+      with:
+        app-name: ${{ needs.deploy-infrastructure.outputs.azFunctionAppName }}
+        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+        publish-profile: ${{ steps.fncapp.outputs.profile }}
+```
+
+The GitHub action above, needs the following secrets configured:
+
+- `Azure_SUBSCRIPTION` - your Azure subscription Id
+- `Azure_RG` - the name of the Azure Resource Group that you want to deploy this solution into
+- `AZUREAD_SWAGGERHUB_CREDENTIALS` - containing the credentials for a Service Principal with contributor access for the resource group. See how to get the [Service Principal credentials](https://docs.microsoft.com/en-us/azure-stack/user/ci-cd-github-action-login-cli?view=azs-2108).
 
 ## Setting up locally
 
