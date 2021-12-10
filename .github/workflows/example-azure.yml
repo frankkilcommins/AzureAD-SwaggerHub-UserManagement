@@ -35,7 +35,7 @@ jobs:
     # set the function name
     - name: Set Azure Function Name
       run: |
-        echo "AZURE_FUNCTIONAPP_NAME=${{ steps.armdeploy.outputs.functionAppName }}"
+        echo "AZURE_FUNCTIONAPP_NAME=${{ steps.armdeploy.outputs.functionAppName }}" >> $GITHUB_ENV
 
   # build and deploy our Azure functions for SwaggerHub + Azure AD user mgmt
   build-and-deploy:
