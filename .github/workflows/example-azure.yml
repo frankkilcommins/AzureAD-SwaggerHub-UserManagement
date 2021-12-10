@@ -2,9 +2,15 @@ on: [workflow_dispatch]
 
 name: AzureAD-SwaggerHub-UserManagement-Setup-and-Deploy
 
+env:
+  AZURE_FUNCTIONAPP_NAME: AZ-FUA-SwaggerHubUserMgmt-prd  # set this to your application's name (NOTE - should come from output from ARM)
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src'    # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '5.0.402'              # set this to the dotnet version to use
+
 jobs:
 
-  build-and-deploy:
+  # use ARM templates to set up the Azure Infra
+  deploy-infrastructure:
     runs-on: ubuntu-latest
     steps:
 
@@ -25,5 +31,50 @@ jobs:
         template: ./azuredeploy.json
         parameters: ./azuredeploy.parameters.json
 
-    #- run: |
-    #    az group list
+  # build and deploy our Azure functions for SwaggerHub + Azure AD user mgmt
+  build-and-deploy:
+    runs-on: windows-latest
+    environment: prd
+    steps:
+    # check out code
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@main
+
+    # login to Azure
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AzureAD_SwaggerHub_CREDENTIALS }}
+        enable-AzPSSession: true      
+
+    # get publish profile
+    - name: Get publish profile
+      id: fnApp
+      shell: pwsh
+      run: |
+        $profile = Get-AzWebAppPublishingProfile
+          -ResourceGroupName ${{ secrets.AZURE_RG }}
+          -Name ${{ env.AZURE_FUNCTIONAPP_NAME }}
+
+        $profile = $profile.Replace("`r", "").Replace("`n", "")
+
+        Write-Output "::set-output name=profile::$profile"
+
+    - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: 'Resolve Project Dependencies Using Dotnet'
+      shell: pwsh
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        dotnet build --configuration Release --output ./output
+        popd
+
+    - name: 'Run Azure Functions Action'
+      uses: Azure/functions-action@v1
+      id: fa
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+        publish-profile: ${{ steps.fnApp.outputs.profile }}

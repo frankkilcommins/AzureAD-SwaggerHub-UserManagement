@@ -210,5 +210,10 @@
             "condition": "[parameters('createNewStorageAccount')]"
         }        
     ],
-    "outputs": {}
+    "outputs": {
+        "functionAppName": {
+            "type": "string",
+            "value": "[variables('FunctionsAppName')]"
+        }
+    }
 }
