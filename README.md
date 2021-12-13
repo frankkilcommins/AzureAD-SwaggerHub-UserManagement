@@ -10,7 +10,7 @@ This sample solution enables you to keep using your existing HR and/or applicati
 The benefits are:
 - users on-boarded into your organization, will automatically get access to SwaggerHub assuming the appropriate Azure AD group membership is applied
 - user leaving your organization are automatically removed from SwaggerHub once their group memberships are revoked
-- users moving departments or teams within your organization, will have their SwaggerHub access modified based on the changes in Azure AD group assignments.
+- users changine role, moving departments or teams within your organization, will have their SwaggerHub access modified based on the changes in Azure AD group assignments.
 
 ## Languages and services used
 - [C#](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -82,7 +82,7 @@ To add the permissions to your registered app, perform the following steps:
 
 The whole idea is that granting or revoking certain group memberships within Azure AD should either add, update, or remove users from SwaggerHub. For this to work, you need to configure the representative groups within your Azure AD tenant.
 
-Depending on the number of SwaggerHub organizations you have the AD Group creation strategy will change. This solution supports single and multi-organization setups.
+Depending on the number of SwaggerHub organizations you have, the AD Group creation strategy will change. This solution supports single and multi-organization setups.
 
 **Single SwaggerHub Organization**
 
@@ -96,7 +96,7 @@ If you have a single SwaggerHub organization, then the recommended group setup w
 
 **Multiple SwaggerHub Organization**
 
-Should you have multiple organizations within SwaggerHub, then you have flexibility with regards to how you want to structure your organizational groups.
+If you have multiple organizations within SwaggerHub, then you have flexibility with regards to how you want to structure your organizational groups.
 You are free to linearly extend the examples above and be very explicit about setting up your groups per organizations - thus I would recommend including the SwaggerHub organization
 name in the Azure AD Group name (e.g. **ADG-SwaggerHub-<`ORG NAME`>-<`ROLE NAME`>**).
 
@@ -133,12 +133,12 @@ This could lead you to the following group creation in Azure AD
 |ADG-SwaggerHub-Customer-Mgmt-Designers|AD Group for designers of the Customer Mgmt org| `DESIGNERS` in Customer Mgmt and `CONSUMERS` in *Common Components* ord|
 |ADG-SwaggerHub-Credit-Risk-Designers|AD Group for designers of the Credit & Risk Org| `DESIGNERS` in Credit & Risk and `CONSUMERS` in both *Common Components* and *Customer Mgmt* orgs|
 
-Have your Azure AD administrator setup the appropriate AD groups.
+Have your Azure AD administrator setup the appropriate AD groups based on your chosen strategy.
 
 ## Configuration
 
 Once you have finalized your Azure AD Group setup based on your SwaggerHub organizations, you need to update the `src/GroupConfiguration.json` file to reflect the setup. This file is used by the `AzureWebhookCallbackToManageSwaggerHubUsers` Azure function to:
-- determine if list of AzureAD groups that is reacts to when a *notification* is received from MS Graph
+- determine the list of AzureAD groups that is reacts to when a *notification* is received from MS Graph
 - determine what SwaggerHub *organization* and *role* combination to use when creating or modifying a user in SwaggerHub
 
 A sample configuration file of a simplistic three group, single organization setup is as follows:
@@ -419,8 +419,7 @@ curl --location --request POST 'http://localhost:7071/admin/functions/Subscripti
 --data-raw '{ "input": "test" }'
 ```
 
-## License Info / Disclaimer
+## Disclaimer
 
-**This sample solution is NOT supported by SmartBear. It is provided as-is.**
+This solution is **not officially supported** by SmartBear Software Inc., nor does SmartBear Software Inc. provides any official support for this solution
 
-For license info, please see [here](./License)
