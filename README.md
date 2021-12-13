@@ -421,6 +421,6 @@ curl --location --request POST 'http://localhost:7071/admin/functions/Subscripti
 
 ## License Info / Disclaimer
 
-**This sample solution is NOT supported by SmartBear. They are provided as-is.**
+**This sample solution is NOT supported by SmartBear. It is provided as-is.**
 
 For license info, please see [here](./License)
