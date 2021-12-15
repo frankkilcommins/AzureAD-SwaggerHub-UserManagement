@@ -32,9 +32,11 @@ The sample solution consists of two Azure Functions which interact with the Micr
 |**SubscriptionManager** Azure Function| This `TimerTrgger` function runs daily and takes care of managing the *change notification subscription* with the Microsoft Graph. It will create a new subscription if one does not exists and otherwise will renew an existing subscription if its due to expire within 7 days|
 |**AzureWebhookCallbackToManageSwaggerHubUsers** Azure Function| This `HttpTrigger` function is called by the Microsoft Graph anytime there is a *change* to group memberships within Azure AD. The function parses the recieved change notification and determines if it's interested in the notification (with the aid of the `GroupConfiguration.json` settings). If it's interested in the group, then it obtains additional information on the users added/removed from the group via the **Microsoft Graph** and in turn calls the **SwaggerHub User-Management API** to ensure the changes are reflected in SwaggerHub|
 
-The following sequence diagram, explains the high level working of the solution:
+The following sequence diagram explains how SwaggerHub is updated based on changes in Azure AD
 ![high level flow](./flow.png)
 
+The following diagram depicts how the subscription to the change notifications is managed
+![subscription lifecycle](./subscription-management-flow.png)
 ## Azure Application and AD Group setup
 
 It is assumed that you have an *Azure subscription* and that you setup an *Azure AD tenant*.
@@ -421,5 +423,5 @@ curl --location --request POST 'http://localhost:7071/admin/functions/Subscripti
 
 ## Disclaimer
 
-This solution is **not officially supported** by SmartBear Software Inc., nor does SmartBear Software Inc. provides any official support for this solution
+This solution is **not officially supported** by SmartBear Software Inc., nor does SmartBear Software Inc. provide any official support for this solution
 
